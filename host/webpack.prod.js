@@ -10,7 +10,7 @@ module.exports = merge(common, {
   devtool: "source-map",
 
   output: {
-    publicPath: "https://playground.suite.camino.foundation/",
+    publicPath: "https://dev.suite.camino.network/",
     filename: "js/[name].[fullhash:8]." + timestamp + ".js",
     chunkFilename: "js/[name].[fullhash:8]." + timestamp + ".js",
   },
@@ -21,9 +21,9 @@ module.exports = merge(common, {
       filename: "remoteEntry.js",
       remotes: {
         Explorer:
-          "Explorer@https://playground.suite-explorer.camino.foundation/remoteEntry.js",
+          "Explorer@https://dev.suite-explorer.camino.network/remoteEntry.js",
         wallet:
-          "wallet@https://playground.suite-wallet.camino.foundation/remoteEntry.js",
+          "wallet@https://dev.suite-wallet.camino.network/remoteEntry.js",
       },
       exposes: {},
       shared: {
