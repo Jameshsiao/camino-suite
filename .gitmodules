@@ -1,8 +1,0 @@
-[submodule "camino-wallet"]
-	path = wallet
-	url = git@github.com:chain4travel/camino-wallet.git
-	branch = suite-deployment
-[submodule "camino-block-explorer"]
-	path = blockexplorer
-	url = git@github.com:chain4travel/camino-block-explorer.git
-	branch = suite-deployment
