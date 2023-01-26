@@ -1,0 +1,8 @@
+[submodule "blockexplorer"]
+	path = blockexplorer
+	url = https://github.com/chain4travel/camino-block-explorer.git
+	branch = suite-deployment
+[submodule "wallet"]
+	path = wallet
+	url = https://github.com/chain4travel/camino-wallet.git
+	branch = suite-deployment
