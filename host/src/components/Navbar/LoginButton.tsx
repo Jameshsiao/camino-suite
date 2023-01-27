@@ -49,9 +49,17 @@ export default function LoginIcon() {
   const theme = useTheme();
   const logout = async () => {
     await store.dispatch("logout");
+    dispatch(updateAccount(null));
     dispatch(updateAuthStatus(false));
     navigate("/login");
   };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Tab") {
+      e.stopPropagation();
+    }
+  }
+
   return (
     <>
       <MHidden width="smUp">
@@ -83,18 +91,27 @@ export default function LoginIcon() {
               ".MuiOutlinedInput-notchedOutline": { border: "none" },
               ".MuiSvgIcon-root": { color: theme.palette.text.primary },
             }}
+            onKeyDown={e => {
+              handleKeyDown(e);
+            }}
           >
-            <MenuItem
+            <MenuItem onKeyDown={e => {
+              handleKeyDown(e);
+            }}
               sx={{ typography: "body1", width: "100%", maxWidth: "326px" }}
             >
               <LoadAccountMenu type="user" />
             </MenuItem>
-            <MenuItem
+            <MenuItem onKeyDown={e => {
+              handleKeyDown(e);
+            }}
               sx={{ typography: "body1", width: "100%", maxWidth: "326px" }}
             >
               <LoadAccountMenu type="kyc" />
             </MenuItem>
-            <MenuItem
+            <MenuItem onKeyDown={e => {
+              handleKeyDown(e);
+            }}
               onClick={logout}
               sx={{
                 typography: "body1",
