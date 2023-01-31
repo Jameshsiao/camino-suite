@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Icon from "@mdi/react";
 import { useAppDispatch, useAppSelector } from "../../hooks/reduxHooks";
 import {
@@ -14,13 +14,13 @@ import {
   Chip,
   IconButton,
 } from "@mui/material";
-import { mdiDeleteOutline, mdiPlus } from "@mdi/js";
-import store from "wallet/store";
 import {
-  getActiveApp,
-  updateAuthStatus,
-  updateValues,
-} from "../../redux/slices/app-config";
+  mdiDeleteOutline,
+  mdiPlus,
+  mdiPencilOutline,
+  mdiTrashCanOutline,
+} from "@mdi/js";
+import store from "wallet/store";
 import {
   addNetworks,
   changeActiveNetwork,
@@ -39,14 +39,13 @@ import AddNewNetwork from "./AddNewNetwork";
 import SelectedNetwork from "./SelectNetwork";
 import { Status } from "../../@types";
 import { useStore } from "Explorer/useStore";
-import { logoutFromWallet, updateAssets } from "../../helpers/walletStore";
+import { updateAssets } from "../../helpers/walletStore";
 
 export default function NetworkSwitcher() {
   const dispatch = useAppDispatch();
   const networks = useAppSelector(getNetworks);
   const activeNetwork = useAppSelector(getActiveNetwork);
   const status = useAppSelector(selectNetworkStatus);
-  const activeApp = useAppSelector(getActiveApp);
   const theme = useTheme();
 
   const {
@@ -55,6 +54,7 @@ export default function NetworkSwitcher() {
     resetValidatorsReducer,
     resetXPChainReducer,
   } = useStore();
+
   const handleRemoveCustomNetwork = async () => {
     store.dispatch("Network/removeCustomNetwork", activeNetwork);
     let networks = store.getters["Network/allNetworks"];
@@ -79,7 +79,6 @@ export default function NetworkSwitcher() {
         ? store.state.Network.selectedNetwork
         : network;
       dispatch(changeActiveNetwork(newSelectedNetwork));
-      changeNetworkExplorer(newSelectedNetwork);
     }
   };
   const handleChangeNetwork = (selected: string) => {
@@ -93,19 +92,29 @@ export default function NetworkSwitcher() {
     resetCChainReducer();
     resetValidatorsReducer();
     resetXPChainReducer();
-    if (activeNetwork.name) setNetwork(activeNetwork.name);
+    if (activeNetwork.name) {
+      changeNetworkExplorer(activeNetwork);
+      setNetwork(activeNetwork.name);
+    }
   }, [activeNetwork]); // eslint-disable-line
 
   const [open, setOpen] = React.useState(false);
+  const [selectedEvent, setSelectedEvent] = React.useState("add");
+  const [selectedNetwork, setSelectedNetwork] = React.useState(null);
 
+  const handleEditCustomNetwork = (network) => {
+    setSelectedEvent("edit");
+    setSelectedNetwork(network.id);
+    setOpen(true);
+  };
   const handleCloseModal = () => {
     setOpen(false);
   };
 
   const handleOpenModal = () => {
+    setSelectedEvent("add");
     setOpen(true);
   };
-
   return (
     <>
       {/* Mobile */}
@@ -164,6 +173,11 @@ export default function NetworkSwitcher() {
                       flexBasis: "50%",
                     }}
                   >
+                    <IconButton
+                      onClick={() => handleEditCustomNetwork(network)}
+                    >
+                      <Icon path={mdiPencilOutline} size={0.8} />
+                    </IconButton>
                     <IconButton onClick={() => handleRemoveCustomNetwork()}>
                       <Icon path={mdiDeleteOutline} size={0.8} />
                     </IconButton>
@@ -210,6 +224,8 @@ export default function NetworkSwitcher() {
             networks={networks}
             handleClose={handleCloseModal}
             switchNetwork={switchNetwork}
+            selectedEvent={selectedEvent}
+            selectedNetwork={selectedNetwork}
           />
         </DialogAnimate>
       </MHidden>
@@ -238,24 +254,46 @@ export default function NetworkSwitcher() {
                 {network.name}
               </Typography>
               {!network.readonly && (
-                <Button
-                  sx={{
-                    width: "30px",
-                    height: "30px",
-                    bgcolor: "secondary.main",
-                    borderRadius: "7px",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    minWidth: "auto",
-                    "&:hover": {
-                      bgcolor: "secondary.main",
-                    },
-                  }}
-                  onClick={() => handleRemoveCustomNetwork()}
-                >
-                  <Icon path={mdiDeleteOutline} size={0.7} color="white" />
-                </Button>
+                <Box sx={{ display: "flex", gap: 1, ml: 1 }}>
+                  <Button
+                    sx={{
+                      width: "30px",
+                      height: "30px",
+                      borderRadius: "7px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      minWidth: "auto",
+                      border: "1px solid",
+                      borderColor: "secondary.main",
+                      color: "secondary.main",
+                      "&:hover": {
+                        backgroundColor: "secondary.main",
+                      },
+                    }}
+                    onClick={() => handleEditCustomNetwork(network)}
+                  >
+                    <Icon path={mdiPencilOutline} size={0.7} />
+                  </Button>
+                  <Button
+                    sx={{
+                      width: "30px",
+                      height: "30px",
+                      backgroundColor: "secondary.main",
+                      borderRadius: "7px",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      minWidth: "auto",
+                      "&:hover": {
+                        backgroundColor: "secondary.main",
+                      },
+                    }}
+                    onClick={() => handleRemoveCustomNetwork()}
+                  >
+                    <Icon path={mdiTrashCanOutline} size={0.7} color="white" />
+                  </Button>
+                </Box>
               )}
             </MenuItem>
           ))}
@@ -272,6 +310,8 @@ export default function NetworkSwitcher() {
             networks={networks}
             handleClose={handleCloseModal}
             switchNetwork={switchNetwork}
+            selectedEvent={selectedEvent}
+            selectedNetwork={selectedNetwork}
           />
         </DialogAnimate>
       </MHidden>

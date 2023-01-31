@@ -31,19 +31,20 @@ const network_module: Module<NetworkState, RootState> = {
     },
     actions: {
         addCustomNetwork({ state, dispatch }, net: AvaNetwork) {
-            // Check if network alerady exists
-            let networks = state.networksCustom
-            // Do not add if there is a network already with the same url
-            for (var i = 0; i < networks.length; i++) {
-                let url = networks[i].url
-                if (net.url === url) {
-                    return
-                }
-            }
             state.networksCustom = [...state.networksCustom, net]
             dispatch('save')
         },
-
+        editNetwork(
+            { state, dispatch },
+            { net, findNetwork }: { net: AvaNetwork; findNetwork: number }
+        ) {
+            if (findNetwork >= 0) {
+                let newNetworksCustom = [...state.networksCustom]
+                newNetworksCustom[findNetwork] = net
+                state.networksCustom = newNetworksCustom
+                dispatch('save')
+            }
+        },
         async removeCustomNetwork({ state, dispatch }, net: AvaNetwork) {
             let index = state.networksCustom.indexOf(net)
             state.networksCustom.splice(index, 1)

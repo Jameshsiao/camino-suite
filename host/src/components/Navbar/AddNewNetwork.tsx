@@ -20,29 +20,43 @@ export default function AddNewNetwork({
   networks,
   handleClose,
   switchNetwork,
+  selectedEvent,
+  selectedNetwork,
 }) {
   const [error, setError] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const { updateNetworks } = useStore();
   const dispatch = useAppDispatch();
   const getInitialValues = () => {
-    const _newNetwork = {
+    let _newNetwork = {
       id: "",
-      displayName: "",
+      name: "",
       protocol: "https",
       host: "",
       magellanAddress: "",
       port: 0,
       predefined: false,
     };
+    if (selectedEvent === "edit") {
+      const network = networks.find((net) => net.id === selectedNetwork);
+      _newNetwork = {
+        id: network.id,
+        name: network.name,
+        protocol: network.protocol,
+        port: network.port,
+        predefined: network.readonly,
+        magellanAddress: network.explorerUrl,
+        host: network.url.split("/")[2].split(":")[0],
+      };
+      return network as Network;
+    }
+
     return _newNetwork;
   };
 
   const EventSchema = Yup.object().shape({
     id: Yup.string(),
-    displayName: Yup.string()
-      .required("This field is required")
-      .min(3, "Too Short!"),
+    name: Yup.string().required("This field is required").min(3, "Too Short!"),
     host: Yup.string().required("This field is required"),
     protocol: Yup.string()
       .required("This field is required")
@@ -101,8 +115,8 @@ export default function AddNewNetwork({
     onSubmit: async (values, { resetForm, setSubmitting }) => {
       try {
         const newNetwork = {
-          id: values.displayName.replace(/\s/g, "-").toLowerCase(),
-          displayName: values.displayName,
+          id: values.name.replace(/\s/g, "-").toLowerCase(),
+          name: values.name,
           protocol: values.protocol,
           host: values.host,
           magellanAddress: values.magellanAddress,
@@ -115,15 +129,22 @@ export default function AddNewNetwork({
           return;
         }
         setIsLoading(true);
-
         let url = `${newNetwork.protocol}://${newNetwork.host}:${newNetwork.port}`;
+        let findNetwork = store.state.Network.networksCustom?.findIndex(
+          (network) => network.id === selectedNetwork
+        );
         let net = new AvaNetwork(
-          newNetwork.displayName,
+          newNetwork.name,
           url,
           newNetwork.id,
           newNetwork.magellanAddress,
           ""
         );
+        if (selectedEvent === "edit")
+          net = {
+            ...net,
+            id: store.state.Network.networksCustom[findNetwork].id,
+          } as AvaNetwork;
         let credNum = await tryConnection(url, true);
         let noCredNum = await tryConnection(url);
 
@@ -134,14 +155,18 @@ export default function AddNewNetwork({
           setIsLoading(false);
           return;
         }
-        store.dispatch("Network/addCustomNetwork", net);
+        if (selectedEvent === "edit" && findNetwork !== -1) {
+          store.dispatch("Network/editNetwork", { net, findNetwork });
+        } else if (selectedEvent === "add") {
+          store.dispatch("Network/addCustomNetwork", net);
+        }
         let allNetworks = store.getters["Network/allNetworks"];
         dispatch(addNetworks(allNetworks));
         updateNetworks(allNetworks);
         switchNetwork(net);
-        resetForm();
         setIsLoading(false);
         setSubmitting(false);
+        resetForm();
         handleClose();
       } catch (error) {
         console.error(error);
@@ -157,9 +182,9 @@ export default function AddNewNetwork({
           <TextField
             fullWidth
             label="Network Name"
-            {...getFieldProps("displayName")}
-            error={Boolean(touched.displayName && errors.displayName)}
-            helperText={touched.displayName && errors.displayName}
+            {...getFieldProps("name")}
+            error={Boolean(touched.name && errors.name)}
+            helperText={touched.name && errors.name}
             sx={{ mb: 3 }}
           />
 
@@ -167,7 +192,7 @@ export default function AddNewNetwork({
             fullWidth
             label="Protocol"
             {...getFieldProps("protocol")}
-            inputProps={{ maxLength: 4 }}
+            inputProps={{ maxLength: 5 }}
             error={Boolean(touched.protocol && errors.protocol)}
             helperText={touched.protocol && errors.protocol}
             sx={{ mb: 3, "& fieldset": { borderRadius: "12px" } }}
@@ -211,7 +236,7 @@ export default function AddNewNetwork({
           sx={{ display: "flex", justifyContent: "center", mb: 2, gap: 2 }}
         >
           <Button disabled={isLoading} variant="outlined" type="submit">
-            Add Network
+            {selectedEvent === "add" ? <>Add Network</> : <>Edit Network</>}
           </Button>
           <Button variant="contained" onClick={handleClose}>
             Cancel

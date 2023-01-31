@@ -8,7 +8,7 @@ export interface Chain {
 
 export interface Network {
   id: string;
-  displayName: string;
+  name: string;
   protocol: string;
   host: string;
   port: number;
