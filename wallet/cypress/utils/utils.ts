@@ -1,9 +1,15 @@
 
+/* Deprecated
+ * Moved to support/commands.ts as a common command
+ */
 export function changeNetwork(cy: Cypress.cy & CyEventEmitter, network = 'Columbus') {
-    cy.get('.css-1nt3z7i > .MuiInputBase-root > .MuiSelect-select').click(); //Network Switcher
+    cy.get('.css-1nt3z7i > .MuiInputBase-root > .MuiSelect-select', { timeout: 10000 }).click(); //Network Switcher
     cy.get(`[data-value="${network}"] > .MuiTypography-root`).click(); //Select Columbus Network
 }
 
+/* Deprecated
+ * Moved to support/commands.ts as a common command
+ */
 export async function accessWallet(cy: Cypress.cy & CyEventEmitter, type: string) {
     cy.get('.css-1gr9h7h > .MuiTypography-root').click();
     if (type === "mnemonic") {

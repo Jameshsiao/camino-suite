@@ -10,6 +10,7 @@
         "start:live": "webpack-dev-server --open --config webpack.dev.js --live-reload",
         "dev": "webpack-dev-server --mode development --open",
         "cypress": "cypress run",
+        "cypress:local": "CYPRESS_BASE_URL=http://localhost:3000 cypress run",
         "format": "prettier src/**/*.{js,ts,vue} .github/workflows/*.yml --write",
         "format-check": "prettier src/**/*.{js,ts,vue} .github/workflows/*.yml --check",
         "lint": "vue-cli-service lint",
